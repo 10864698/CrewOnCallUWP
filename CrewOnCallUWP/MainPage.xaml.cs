@@ -23,6 +23,7 @@ namespace CrewOnCallUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
         //string appointmentID;
         string clientName;
         string venueName;
@@ -35,7 +36,10 @@ namespace CrewOnCallUWP
         TimeSpan totalHours;
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            Initialize();
+
+            NavigationCacheMode = NavigationCacheMode.Required;
         }
 
         public async void Initialize()
@@ -68,14 +72,14 @@ namespace CrewOnCallUWP
                         SaveSettings("clientName", appointments[i].Subject);
                         SaveSettings("venueName", appointments[i].Location);
                         SaveSettings("startTime", appointments[i].StartTime.ToString());
-                        SaveSettings("localID", appointments[i].LocalId);
+                        //SaveSettings("localID", appointments[i].LocalId);
                     }
                     else
                     {
                         SaveSettings("clientName", "Client");
                         SaveSettings("venueName", "Venue");
                         SaveSettings("startTime", DateTime.Now.ToString());
-                        SaveSettings("localID", null);
+                        //SaveSettings("localID", null);
                     }
                 }
                 else
@@ -83,7 +87,7 @@ namespace CrewOnCallUWP
                     SaveSettings("clientName", "Client");
                     SaveSettings("venueName", "Venue");
                     SaveSettings("startTime", DateTime.Now.ToString());
-                    SaveSettings("localID", null);
+                    //SaveSettings("localID", null);
                 }
             }
 
@@ -112,10 +116,10 @@ namespace CrewOnCallUWP
 
             public Client()
             {
-                var savedClientName = Windows.Storage.ApplicationData.Current.LocalSettings;
+                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
-                if ((savedClientName.Values["clientName"] == null) || !savedClientName.Values.ContainsKey("clientName"))
-                    savedClientName.Values["clientName"] = "Client";
+                if ((localSettings.Values["clientName"] == null) || !localSettings.Values.ContainsKey("clientName"))
+                    localSettings.Values["clientName"] = "Client";
 
                 _name = RetrieveSettings("clientName");
             }
@@ -139,10 +143,10 @@ namespace CrewOnCallUWP
 
             public Venue()
             {
-                var savedVenueName = Windows.Storage.ApplicationData.Current.LocalSettings;
+                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
-                if ((savedVenueName.Values["venueName"] == null) || !savedVenueName.Values.ContainsKey("venueName"))
-                    savedVenueName.Values["venueName"] = "Venue";
+                if ((localSettings.Values["venueName"] == null) || !localSettings.Values.ContainsKey("venueName"))
+                    localSettings.Values["venueName"] = "Venue";
 
                 _venue = RetrieveSettings("venueName");
             }
@@ -163,10 +167,10 @@ namespace CrewOnCallUWP
 
             public Start()
             {
-                var savedStartTime = Windows.Storage.ApplicationData.Current.LocalSettings;
+                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
-                if ((savedStartTime.Values["startTime"] == null) || !savedStartTime.Values.ContainsKey("startTime"))
-                    savedStartTime.Values["startTime"] = DateTime.Now.ToString();
+                if ((localSettings.Values["startTime"] == null) || !localSettings.Values.ContainsKey("startTime"))
+                    localSettings.Values["startTime"] = DateTime.Now.ToString();
 
                 _start = DateTime.Parse(RetrieveSettings("startTime"));
             }
@@ -220,7 +224,7 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
             sms.Body = "Confirming " + clientName + " at " + venueName + " on " + startDate + " at " + startTime + "\nGeorge";
-            sms.Recipients.Add("+61427015243");
+            sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
@@ -231,7 +235,7 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
             sms.Body = "I am on the way to " + clientName + "\nGeorge";
-            sms.Recipients.Add("+61427015243");
+            sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
 
             SaveSettings("clientName", clientName);
@@ -303,7 +307,7 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
             sms.Body = "Hours for " + clientName + " = " + totalTime + ".\n(" + startTime + " - " + endTime + ")\n" + breakLength + " break.\nGeorge";
-            sms.Recipients.Add("+61427015243");
+            sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
 
             SaveSettings("clientName", "Client");
@@ -339,7 +343,7 @@ namespace CrewOnCallUWP
         {
             try
             {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+                //var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
                 localSettings.Values[key] = value;
                 return true;
             }
@@ -354,6 +358,7 @@ namespace CrewOnCallUWP
             try
             {
                 var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+
                 if (localSettings.Values[key] != null)
                     return localSettings.Values[key].ToString();
                 return key;
