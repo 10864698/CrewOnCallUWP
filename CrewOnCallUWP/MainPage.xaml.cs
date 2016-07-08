@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Appointments;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -23,19 +15,12 @@ namespace CrewOnCallUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        string clientName;
-        string venueName;
-        string clientNotes;
-        string startDate;
-        string startTime;
-        string endTime;
-        string breakLength;
-        string totalTime;
-        TimeSpan totalHours;
+        Gig gig = new Gig();
+
         public MainPage()
         {
             InitializeComponent();
-            this.DataContext = this;
+            DataContext = gig;
 
             Initialize();
 
@@ -44,12 +29,8 @@ namespace CrewOnCallUWP
 
         public async void Initialize()
         {
-            var client = new Client();
-            var venue = new Venue();
-            var start = new Start();
 
             AppointmentStore store = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
-
             FindAppointmentsOptions options = new FindAppointmentsOptions();
             options.MaxCount = 100;
             options.FetchProperties.Add(AppointmentProperties.Subject);
@@ -67,111 +48,65 @@ namespace CrewOnCallUWP
                     i++;
                 if (!appointments[i].AllDay)
                 {
-                    clientName = appointments[i].Subject;
-                    venueName = appointments[i].Location;
-                    startTime = appointments[i].StartTime.ToString();
+                    gig.clientName = appointments[i].Subject;
+                    gig.venueName = appointments[i].Location;
+                    gig.startTime = appointments[i].StartTime.ToString();
                 }
                 else
                 {
-                    clientName = "Client";
-                    venueName = "Venue";
-                    startTime = DateTime.Now.ToString();
+                    gig.clientName = "Client";
+                    gig.venueName = "Venue";
+                    gig.startTime = DateTime.Now.ToString();
                 }
             }
             else
             {
-                clientName = "Client";
-                venueName = "Venue";
-                startTime = DateTime.Now.ToString();
+                gig.clientName = "Client";
+                gig.venueName = "Venue";
+                gig.startTime = DateTime.Now.ToString();
             }
-        }
-
-        public class Client
-        {
-            private string _name;
-
-
-            public string ClientName
-            {
-                get
-                {
-                    return _name;
-                }
-                set
-                {
-                    _name = value;
-                }
-            }
-        }
-
-        public class Venue
-        {
-            private string _venue;
-
-
-            public string VenueName
-            {
-                get
-                { return _venue; }
-                set
-                { _venue = value; }
-            }
-        }
-
-        public class Start
-        {
-
-            private DateTime _start;
-
-            public DateTime StartTime
-            {
-                get { return _start; }
-                set { _start = value; }
-            }
-
         }
 
         private async void addCalButton_Click(object sender, RoutedEventArgs e)
         {
-            clientName = clientNameTextBox.Text;
-            venueName = venueNameTextBox.Text;
-            clientNotes = clientNotesTextBox.Text;
-            startDate = startDatePicker.Date.ToString("D");
-            startTime = startTimePicker.Time.ToString(@"hh\:mm");
-            totalHours = endTimePicker.Time - startTimePicker.Time;
+            gig.clientName = clientNameTextBox.Text;
+            gig.venueName = venueNameTextBox.Text;
+            gig.clientNotes = clientNotesTextBox.Text;
+            gig.startDate = startDatePicker.Date.ToString("D");
+            gig.startTime = startTimePicker.Time.ToString(@"hh\:mm");
+            gig.totalHours = endTimePicker.Time - startTimePicker.Time;
 
-            if (totalHours < TimeSpan.FromDays(0))
+            if (gig.totalHours < TimeSpan.FromDays(0))
             {
-                totalHours += TimeSpan.FromDays(1);
+                gig.totalHours += TimeSpan.FromDays(1);
             }
 
-            var cal = new Windows.ApplicationModel.Appointments.Appointment();
-
-            var date = (DateTimeOffset)startDatePicker.Date;
-            var time = (TimeSpan)startTimePicker.Time;
+            var cal = new Appointment();
+            var date = startDatePicker.Date;
+            var time = startTimePicker.Time;
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
             var calTime = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, timeZoneOffset);
 
             cal.StartTime = calTime;
-            cal.Duration = totalHours;
-            cal.Location = venueName;
-            cal.Subject = clientName;
-            cal.Details = "CrewOnCall::" + ((ComboBoxItem)skillPicker.SelectedItem).Content.ToString() + "\n" + clientNotes;
+            cal.Duration = gig.totalHours;
+            cal.Location = gig.venueName;
+            cal.Subject = gig.clientName;
+            cal.Details = "CrewOnCall::" + ((ComboBoxItem)skillPicker.SelectedItem).Content.ToString() + "\n" + gig.clientNotes;
             cal.AllDay = false;
             cal.Reminder = TimeSpan.FromHours(2);
 
-            String ID = await Windows.ApplicationModel.Appointments.AppointmentManager.ShowAddAppointmentAsync(cal, new Rect(), Windows.UI.Popups.Placement.Default);
+            await AppointmentManager.ShowAddAppointmentAsync(cal, new Rect(), Windows.UI.Popups.Placement.Default);
         }
 
         private async void confirmButton_Click(object sender, RoutedEventArgs e)
         {
-            clientName = clientNameTextBox.Text;
-            venueName = venueNameTextBox.Text;
-            startDate = startDatePicker.Date.ToString("D");
-            startTime = startTimePicker.Time.ToString(@"hh\:mm");
+            gig.clientName = clientNameTextBox.Text;
+            gig.venueName = venueNameTextBox.Text;
+            gig.startDate = startDatePicker.Date.ToString("D");
+            gig.startTime = startTimePicker.Time.ToString(@"hh\:mm");
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "Confirming " + clientName + " at " + venueName + " on " + startDate + " at " + startTime + "\nGeorge";
+            sms.Body = "Confirming " + gig.clientName + " at " + gig.venueName + " on " + gig.startDate + " at " + gig.startTime + "\nGeorge";
             sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
@@ -179,82 +114,81 @@ namespace CrewOnCallUWP
 
         private async void ontheway_Click(object sender, RoutedEventArgs e)
         {
-            clientName = clientNameTextBox.Text;
+            gig.clientName = clientNameTextBox.Text;
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "I am on the way to " + clientName + "\nGeorge";
+            sms.Body = "I am on the way to " + gig.clientName + "\nGeorge";
             sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
-
 
         }
 
         private async void sendtotalHours_Click(object sender, RoutedEventArgs e)
         {
-            clientName = clientNameTextBox.Text;
+            gig.clientName = clientNameTextBox.Text;
 
             if (VerifyTimeIsAvailable(startTimePicker.Time) == true)
             {
-                startTime = startTimePicker.Time.ToString(@"hh\:mm");
+                gig.startTime = startTimePicker.Time.ToString(@"hh\:mm");
             }
             else
             {
-                startTime = DateTime.Now.Subtract(TimeSpan.FromHours(3)).ToString(@"hh\:mm");
+                gig.startTime = DateTime.Now.Subtract(TimeSpan.FromHours(3)).ToString(@"hh\:mm");
             }
 
             if (VerifyTimeIsAvailable(endTimePicker.Time) == true)
             {
-                endTime = endTimePicker.Time.ToString(@"hh\:mm");
+                gig.endTime = endTimePicker.Time.ToString(@"hh\:mm");
             }
             else
             {
-                endTime = DateTime.Now.ToString(@"hh\:mm");
+                gig.endTime = DateTime.Now.ToString(@"hh\:mm");
             }
 
-            totalHours = endTimePicker.Time - startTimePicker.Time;
+            gig.totalHours = endTimePicker.Time - startTimePicker.Time;
 
-            if (totalHours < TimeSpan.FromDays(0))
+            if (gig.totalHours < TimeSpan.FromDays(0))
             {
-                totalHours += TimeSpan.FromDays(1);
+                gig.totalHours += TimeSpan.FromDays(1);
             }
 
-            breakLength = ((ComboBoxItem)breakLengthPicker.SelectedItem).Content.ToString();
-            switch (breakLength)
+            gig.breakLength = ((ComboBoxItem)breakLengthPicker.SelectedItem).Content.ToString();
+            switch (gig.breakLength)
             {
                 case "30 min":
-                    totalHours -= TimeSpan.FromMinutes(30);
+                    gig.totalHours -= TimeSpan.FromMinutes(30);
                     break;
                 case "45 min":
-                    totalHours -= TimeSpan.FromMinutes(45);
+                    gig.totalHours -= TimeSpan.FromMinutes(45);
                     break;
                 case "60 min":
-                    totalHours -= TimeSpan.FromMinutes(60);
+                    gig.totalHours -= TimeSpan.FromMinutes(60);
                     break;
             }
 
-            if (totalHours < TimeSpan.FromDays(0))
+            if (gig.totalHours < TimeSpan.FromDays(0))
             {
-                totalHours = TimeSpan.FromDays(0);
+                gig.totalHours = TimeSpan.FromDays(0);
             }
 
-            if ((startDatePicker.Date.DayOfWeek == 0) & (totalHours < TimeSpan.FromHours(4)))
+            if ((startDatePicker.Date.DayOfWeek == 0) & (gig.totalHours < TimeSpan.FromHours(4)))
             {
-                totalHours = TimeSpan.FromHours(4);
-                totalTime = "4 hr call";
-            }
-
-            else
-                if (totalHours < TimeSpan.FromHours(3))
-            {
-                totalHours = TimeSpan.FromHours(3);
-                totalTime = "3 hr call";
+                gig.totalHours = TimeSpan.FromHours(4);
+                gig.totalTime = "4 hr call";
             }
 
             else
-                totalTime = totalHours.ToString(@"hh\:mm");
+                if (gig.totalHours < TimeSpan.FromHours(3))
+            {
+                gig.totalHours = TimeSpan.FromHours(3);
+                gig.totalTime = "3 hr call";
+            }
+
+            else
+                gig.totalTime = gig.totalHours.ToString(@"hh\:mm");
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "Hours for " + clientName + " = " + totalTime + ".\n(" + startTime + " - " + endTime + ")\n" + breakLength + " break.\nGeorge";
+            sms.Body = "Hours for " + gig.clientName + " = " + gig.totalTime + ".\n(" + gig.startTime + " - " + gig.endTime + ")\n" + gig.breakLength + " break.\nGeorge";
             sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
 
@@ -284,7 +218,6 @@ namespace CrewOnCallUWP
         private void endTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
         { }
 
-
         private bool VerifyTimeIsAvailable(TimeSpan timeSpan)
         {
             //throw new NotImplementedException();
@@ -306,5 +239,18 @@ namespace CrewOnCallUWP
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
         }
+    }
+
+    public class Gig
+    {
+        public string clientName { get; set; }
+        public string venueName { get; set; }
+        public string clientNotes { get; set; }
+        public string startDate { get; set; }
+        public string startTime { get; set; }
+        public string endTime { get; set; }
+        public string breakLength { get; set; }
+        public string totalTime { get; set; }
+        public TimeSpan totalHours { get; set; }
     }
 }

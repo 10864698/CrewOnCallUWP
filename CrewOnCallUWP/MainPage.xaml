@@ -33,7 +33,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-
+            
             <DatePicker x:Name="startDatePicker" Margin="0" DateChanged="startDatePicker_DateChanged" Header="Start Date" Grid.Row="1" Grid.Column="1" MinWidth="0" MaxWidth="Infinity" HorizontalAlignment="Stretch" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Grid.ColumnSpan="3"/>
             <ComboBox x:Name="skillPicker" Margin="0" SelectionChanged="skillPicker_SelectionChanged" Header="Skill" Grid.Row="1" Grid.Column="5" MinWidth="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
                 <ComboBoxItem Content="LEVEL3" IsSelected="True"/>
@@ -59,7 +59,7 @@
             <TextBox x:Name="clientNameTextBox" Header="Client" TextChanged="clientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding clientName, Mode=TwoWay}" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
             <TextBox x:Name="venueNameTextBox" Header="Venue" TextChanged="venueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding venueName, Mode=TwoWay}" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
             <TextBox x:Name="clientNotesTextBox" Header="Notes" TextChanged="clientNotes_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="Notes" Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
-
+            
 
         </Grid>
     </ScrollViewer>
