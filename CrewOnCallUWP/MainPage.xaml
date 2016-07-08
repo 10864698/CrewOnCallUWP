@@ -33,15 +33,15 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
+
             <DatePicker x:Name="startDatePicker" Margin="0" DateChanged="startDatePicker_DateChanged" Header="Start Date" Grid.Row="1" Grid.Column="1" MinWidth="0" MaxWidth="Infinity" HorizontalAlignment="Stretch" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Grid.ColumnSpan="3"/>
             <ComboBox x:Name="skillPicker" Margin="0" SelectionChanged="skillPicker_SelectionChanged" Header="Skill" Grid.Row="1" Grid.Column="5" MinWidth="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
                 <ComboBoxItem Content="LEVEL3" IsSelected="True"/>
                 <ComboBoxItem Content="VANDVR"/>
                 <ComboBoxItem Content="MR/HR" />
             </ComboBox>
-            
-            <TimePicker x:Name="startTimePicker" Margin="0" TimeChanged="startTimePicker_TimeChanged" Header="Start Time" Time="{Binding Start.StartTime, Mode=TwoWay}" MinuteIncrement="15"  Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" MinWidth="0" MaxWidth="Infinity" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"/>
+
+            <TimePicker x:Name="startTimePicker" Margin="0" TimeChanged="startTimePicker_TimeChanged" Header="Start Time" Time="{Binding startTime, Mode=TwoWay}" MinuteIncrement="15"  Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" MinWidth="0" MaxWidth="Infinity" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"/>
             <ComboBox x:Name="breakLengthPicker" Margin="0" SelectionChanged="breakLength_SelectionChanged" Header="Meal Break"  Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
                 <ComboBoxItem Content="No" IsSelected="True"/>
                 <ComboBoxItem Content="30 min"/>
@@ -56,10 +56,10 @@
             <Button x:Name="onTheWayButton" Content="SMS On the Way" Click="ontheway_Click" Margin="0" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Stretch" Padding="0" Grid.ColumnSpan="2"/>
             <Button x:Name="sendtotalHoursButton" Content="SMS Hours" Click="sendtotalHours_Click" Margin="0" Grid.Row="7" Grid.Column="4" HorizontalAlignment="Stretch" Padding="0" Grid.ColumnSpan="2"/>
 
-            <TextBox x:Name="clientNameTextBox" Header="Client" TextChanged="clientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding Client.ClientName, Mode=TwoWay}" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
-            <TextBox x:Name="venueNameTextBox" Header="Venue" TextChanged="venueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding Venue.VenueName, Mode=TwoWay}" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
+            <TextBox x:Name="clientNameTextBox" Header="Client" TextChanged="clientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding clientName, Mode=TwoWay}" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
+            <TextBox x:Name="venueNameTextBox" Header="Venue" TextChanged="venueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding venueName, Mode=TwoWay}" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
             <TextBox x:Name="clientNotesTextBox" Header="Notes" TextChanged="clientNotes_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="Notes" Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
-            
+
 
         </Grid>
     </ScrollViewer>

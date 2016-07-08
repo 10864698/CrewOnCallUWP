@@ -23,8 +23,6 @@ namespace CrewOnCallUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-        //string appointmentID;
         string clientName;
         string venueName;
         string clientNotes;
@@ -37,6 +35,8 @@ namespace CrewOnCallUWP
         public MainPage()
         {
             InitializeComponent();
+            this.DataContext = this;
+
             Initialize();
 
             NavigationCacheMode = NavigationCacheMode.Required;
@@ -48,81 +48,48 @@ namespace CrewOnCallUWP
             var venue = new Venue();
             var start = new Start();
 
-            if (RetrieveSettings("onTheWay") != "yes")
+            AppointmentStore store = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+
+            FindAppointmentsOptions options = new FindAppointmentsOptions();
+            options.MaxCount = 100;
+            options.FetchProperties.Add(AppointmentProperties.Subject);
+            options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.AllDay);
+            options.FetchProperties.Add(AppointmentProperties.StartTime);
+            options.FetchProperties.Add(AppointmentProperties.Duration);
+            IReadOnlyList<Appointment> appointments = await store.FindAppointmentsAsync(DateTime.Now, TimeSpan.FromHours(2), options);
+
+            if (appointments.Count > 0)
             {
-                AppointmentStore store = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+                var i = 0;
 
-                FindAppointmentsOptions options = new FindAppointmentsOptions();
-                options.MaxCount = 100;
-                options.FetchProperties.Add(AppointmentProperties.Subject);
-                options.FetchProperties.Add(AppointmentProperties.Location);
-                options.FetchProperties.Add(AppointmentProperties.AllDay);
-                options.FetchProperties.Add(AppointmentProperties.StartTime);
-                options.FetchProperties.Add(AppointmentProperties.Duration);
-                IReadOnlyList<Appointment> appointments = await store.FindAppointmentsAsync(DateTime.Now, TimeSpan.FromHours(2), options);
-
-                if (appointments.Count > 0)
+                while ((appointments[i].AllDay) && (i < appointments.Count))
+                    i++;
+                if (!appointments[i].AllDay)
                 {
-                    var i = 0;
-
-                    while ((appointments[i].AllDay) && (i < appointments.Count))
-                        i++;
-                    if (!appointments[i].AllDay)
-                    {
-                        SaveSettings("clientName", appointments[i].Subject);
-                        SaveSettings("venueName", appointments[i].Location);
-                        SaveSettings("startTime", appointments[i].StartTime.ToString());
-                        //SaveSettings("localID", appointments[i].LocalId);
-                    }
-                    else
-                    {
-                        SaveSettings("clientName", "Client");
-                        SaveSettings("venueName", "Venue");
-                        SaveSettings("startTime", DateTime.Now.ToString());
-                        //SaveSettings("localID", null);
-                    }
+                    clientName = appointments[i].Subject;
+                    venueName = appointments[i].Location;
+                    startTime = appointments[i].StartTime.ToString();
                 }
                 else
                 {
-                    SaveSettings("clientName", "Client");
-                    SaveSettings("venueName", "Venue");
-                    SaveSettings("startTime", DateTime.Now.ToString());
-                    //SaveSettings("localID", null);
+                    clientName = "Client";
+                    venueName = "Venue";
+                    startTime = DateTime.Now.ToString();
                 }
             }
-
-            client.ClientName = RetrieveSettings("clientName");
-            clientNameTextBox.DataContext = client;
-
-            venue.VenueName = RetrieveSettings("venueName");
-            venueNameTextBox.DataContext = venue;
-
-            ////start.StartTime = DateTime.Parse(RetrieveSettings("startTime"));
-            //start.StartTime = DateTime.Now.AddDays(7);
-            //var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-            //startDatePicker.DataContext = new DateTimeOffset(start.StartTime, timeZoneOffset);
-
-            //var dt = start.StartTime;
-            //var ts = dt - dt.Date;
-            //startTimePicker.DataContext = ts;
-            //start.StartTime = DateTime.Now.AddHours(6);
-            //startTimePicker.DataContext = start.StartTime - start.StartTime.Date;
-
+            else
+            {
+                clientName = "Client";
+                venueName = "Venue";
+                startTime = DateTime.Now.ToString();
+            }
         }
 
         public class Client
         {
             private string _name;
 
-            public Client()
-            {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-
-                if ((localSettings.Values["clientName"] == null) || !localSettings.Values.ContainsKey("clientName"))
-                    localSettings.Values["clientName"] = "Client";
-
-                _name = RetrieveSettings("clientName");
-            }
 
             public string ClientName
             {
@@ -141,15 +108,6 @@ namespace CrewOnCallUWP
         {
             private string _venue;
 
-            public Venue()
-            {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-
-                if ((localSettings.Values["venueName"] == null) || !localSettings.Values.ContainsKey("venueName"))
-                    localSettings.Values["venueName"] = "Venue";
-
-                _venue = RetrieveSettings("venueName");
-            }
 
             public string VenueName
             {
@@ -164,16 +122,6 @@ namespace CrewOnCallUWP
         {
 
             private DateTime _start;
-
-            public Start()
-            {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-
-                if ((localSettings.Values["startTime"] == null) || !localSettings.Values.ContainsKey("startTime"))
-                    localSettings.Values["startTime"] = DateTime.Now.ToString();
-
-                _start = DateTime.Parse(RetrieveSettings("startTime"));
-            }
 
             public DateTime StartTime
             {
@@ -238,8 +186,7 @@ namespace CrewOnCallUWP
             sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
 
-            SaveSettings("clientName", clientName);
-            SaveSettings("onTheWay", "yes");
+
         }
 
         private async void sendtotalHours_Click(object sender, RoutedEventArgs e)
@@ -303,16 +250,14 @@ namespace CrewOnCallUWP
                 totalTime = "3 hr call";
             }
 
-            else totalTime = totalHours.ToString(@"hh\:mm");
+            else
+                totalTime = totalHours.ToString(@"hh\:mm");
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
             sms.Body = "Hours for " + clientName + " = " + totalTime + ".\n(" + startTime + " - " + endTime + ")\n" + breakLength + " break.\nGeorge";
             sms.Recipients.Add("+61490139009");
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
 
-            SaveSettings("clientName", "Client");
-            SaveSettings("venueName", "Venue");
-            SaveSettings("onTheWay", "no");
         }
 
         private void clientName_TextChanged(object sender, TextChangedEventArgs e)
@@ -339,35 +284,6 @@ namespace CrewOnCallUWP
         private void endTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
         { }
 
-        public bool SaveSettings(string key, string value)
-        {
-            try
-            {
-                //var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-                localSettings.Values[key] = value;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static string RetrieveSettings(string key)
-        {
-            try
-            {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-
-                if (localSettings.Values[key] != null)
-                    return localSettings.Values[key].ToString();
-                return key;
-            }
-            catch
-            {
-                return key;
-            }
-        }
 
         private bool VerifyTimeIsAvailable(TimeSpan timeSpan)
         {
