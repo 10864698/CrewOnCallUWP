@@ -15,21 +15,28 @@ namespace CrewOnCallUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        Gig gig = new Gig();
+        Gig gig = new Gig
+        {
+            clientName = "New Client",
+            venueName = "New Venue",
+            testDate = DateTime.Now.Subtract(TimeSpan.FromDays(1)),
+            //startDate = DateTime.Now.Subtract(TimeSpan.FromDays(1)).ToString("D"),
+            startTime = DateTime.Now.ToString(@"hh\:mm"),
+            endTime = DateTime.Now.Subtract(TimeSpan.FromHours(3)).ToString(@"hh\:mm")
+        };
 
         public MainPage()
         {
             InitializeComponent();
             DataContext = gig;
 
-            Initialize();
+            //Initialize();
 
             NavigationCacheMode = NavigationCacheMode.Required;
         }
 
         public async void Initialize()
         {
-
             AppointmentStore store = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
             FindAppointmentsOptions options = new FindAppointmentsOptions();
             options.MaxCount = 100;
@@ -54,14 +61,14 @@ namespace CrewOnCallUWP
                 }
                 else
                 {
-                    gig.clientName = "Client";
+                    gig.clientName = "Client TEST appointment count > 0";
                     gig.venueName = "Venue";
                     gig.startTime = DateTime.Now.ToString();
                 }
             }
             else
             {
-                gig.clientName = "Client";
+                gig.clientName = "Client TEST appointment count =< 0";
                 gig.venueName = "Venue";
                 gig.startTime = DateTime.Now.ToString();
             }
@@ -252,5 +259,8 @@ namespace CrewOnCallUWP
         public string breakLength { get; set; }
         public string totalTime { get; set; }
         public TimeSpan totalHours { get; set; }
+
+        public DateTimeOffset testDate { get; set; }
+
     }
 }
