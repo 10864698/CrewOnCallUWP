@@ -19,10 +19,10 @@ namespace CrewOnCallUWP
         {
             clientName = "New Client",
             venueName = "New Venue",
-            testDate = DateTime.Now.Subtract(TimeSpan.FromDays(1)),
-            //startDate = DateTime.Now.Subtract(TimeSpan.FromDays(1)).ToString("D"),
-            startTime = DateTime.Now.ToString(@"hh\:mm"),
-            endTime = DateTime.Now.Subtract(TimeSpan.FromHours(3)).ToString(@"hh\:mm")
+            startDate = DateTime.Now,
+            startTime = DateTime.Now.TimeOfDay,
+            endDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
+            endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay
         };
 
         public MainPage()
@@ -30,7 +30,7 @@ namespace CrewOnCallUWP
             InitializeComponent();
             DataContext = gig;
 
-            //Initialize();
+            Initialize();
 
             NavigationCacheMode = NavigationCacheMode.Required;
         }
@@ -57,20 +57,29 @@ namespace CrewOnCallUWP
                 {
                     gig.clientName = appointments[i].Subject;
                     gig.venueName = appointments[i].Location;
-                    gig.startTime = appointments[i].StartTime.ToString();
+                    gig.startDate = appointments[i].StartTime;
+                    gig.startTime = gig.startDate.TimeOfDay;
+                    gig.endDate = appointments[i].StartTime.Add(appointments[i].Duration);
+                    gig.endTime = gig.endDate.TimeOfDay;
                 }
                 else
                 {
                     gig.clientName = "Client TEST appointment count > 0";
                     gig.venueName = "Venue";
-                    gig.startTime = DateTime.Now.ToString();
+                    gig.startDate = DateTime.Now;
+                    gig.startTime = DateTime.Now.TimeOfDay;
+                    gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
+                    gig.endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
                 }
             }
             else
             {
-                gig.clientName = "Client TEST appointment count =< 0";
+                gig.clientName = "Client TEST appointment count = 0";
                 gig.venueName = "Venue";
-                gig.startTime = DateTime.Now.ToString();
+                gig.startDate = DateTime.Now;
+                gig.startTime = DateTime.Now.TimeOfDay;
+                gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
+                gig.endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
             }
         }
 
@@ -79,8 +88,9 @@ namespace CrewOnCallUWP
             gig.clientName = clientNameTextBox.Text;
             gig.venueName = venueNameTextBox.Text;
             gig.clientNotes = clientNotesTextBox.Text;
-            gig.startDate = startDatePicker.Date.ToString("D");
-            gig.startTime = startTimePicker.Time.ToString(@"hh\:mm");
+            gig.startDate = startDatePicker.Date;
+            gig.startTime = startTimePicker.Time;
+
             gig.totalHours = endTimePicker.Time - startTimePicker.Time;
 
             if (gig.totalHours < TimeSpan.FromDays(0))
@@ -109,12 +119,16 @@ namespace CrewOnCallUWP
         {
             gig.clientName = clientNameTextBox.Text;
             gig.venueName = venueNameTextBox.Text;
-            gig.startDate = startDatePicker.Date.ToString("D");
-            gig.startTime = startTimePicker.Time.ToString(@"hh\:mm");
+            gig.startDate = startDatePicker.Date;
+            gig.startTime = startTimePicker.Time;
+
+            var date = gig.startDate.LocalDateTime.ToString("D");
+            var time = gig.startTime.ToString(@"hh\:mm");
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "Confirming " + gig.clientName + " at " + gig.venueName + " on " + gig.startDate + " at " + gig.startTime + "\nGeorge";
-            sms.Recipients.Add("+61490139009");
+            sms.Body = "Confirming " + gig.clientName + " at " + gig.venueName + " on " + date + " at " + time + "\nGeorge";
+            sms.Recipients.Add("+61427015243");
+
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
@@ -125,7 +139,8 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
             sms.Body = "I am on the way to " + gig.clientName + "\nGeorge";
-            sms.Recipients.Add("+61490139009");
+            sms.Recipients.Add("+61427015243");
+
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
 
         }
@@ -133,24 +148,9 @@ namespace CrewOnCallUWP
         private async void sendtotalHours_Click(object sender, RoutedEventArgs e)
         {
             gig.clientName = clientNameTextBox.Text;
-
-            if (VerifyTimeIsAvailable(startTimePicker.Time) == true)
-            {
-                gig.startTime = startTimePicker.Time.ToString(@"hh\:mm");
-            }
-            else
-            {
-                gig.startTime = DateTime.Now.Subtract(TimeSpan.FromHours(3)).ToString(@"hh\:mm");
-            }
-
-            if (VerifyTimeIsAvailable(endTimePicker.Time) == true)
-            {
-                gig.endTime = endTimePicker.Time.ToString(@"hh\:mm");
-            }
-            else
-            {
-                gig.endTime = DateTime.Now.ToString(@"hh\:mm");
-            }
+            gig.startDate = startDatePicker.Date;
+            gig.startTime = startTimePicker.Time;
+            gig.endTime = endTimePicker.Time;
 
             gig.totalHours = endTimePicker.Time - startTimePicker.Time;
 
@@ -158,6 +158,7 @@ namespace CrewOnCallUWP
             {
                 gig.totalHours += TimeSpan.FromDays(1);
             }
+            gig.endDate = gig.startDate.Add(gig.totalHours);
 
             gig.breakLength = ((ComboBoxItem)breakLengthPicker.SelectedItem).Content.ToString();
             switch (gig.breakLength)
@@ -195,10 +196,10 @@ namespace CrewOnCallUWP
                 gig.totalTime = gig.totalHours.ToString(@"hh\:mm");
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "Hours for " + gig.clientName + " = " + gig.totalTime + ".\n(" + gig.startTime + " - " + gig.endTime + ")\n" + gig.breakLength + " break.\nGeorge";
-            sms.Recipients.Add("+61490139009");
-            await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+            sms.Body = "Hours for " + gig.clientName + " = " + gig.totalTime + ".\n(" + gig.startTime.ToString(@"hh\:mm") + " - " + gig.endTime.ToString(@"hh\:mm") + ")\n" + gig.breakLength + " break.\nGeorge";
+            sms.Recipients.Add("+61427015243");
 
+            await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
         private void clientName_TextChanged(object sender, TextChangedEventArgs e)
@@ -253,14 +254,12 @@ namespace CrewOnCallUWP
         public string clientName { get; set; }
         public string venueName { get; set; }
         public string clientNotes { get; set; }
-        public string startDate { get; set; }
-        public string startTime { get; set; }
-        public string endTime { get; set; }
+        public DateTimeOffset startDate { get; set; }
+        public DateTimeOffset endDate { get; set; }
+        public TimeSpan startTime { get; set; }
+        public TimeSpan endTime { get; set; }
         public string breakLength { get; set; }
         public string totalTime { get; set; }
         public TimeSpan totalHours { get; set; }
-
-        public DateTimeOffset testDate { get; set; }
-
     }
 }
