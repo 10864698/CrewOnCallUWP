@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Windows.ApplicationModel.Appointments;
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -27,17 +28,16 @@ namespace CrewOnCallUWP
 
         public MainPage()
         {
+            Initialize();
             InitializeComponent();
             DataContext = gig;
-
-            Initialize();
-
             NavigationCacheMode = NavigationCacheMode.Required;
         }
 
         public async void Initialize()
         {
             AppointmentStore store = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+
             FindAppointmentsOptions options = new FindAppointmentsOptions();
             options.MaxCount = 100;
             options.FetchProperties.Add(AppointmentProperties.Subject);
@@ -45,6 +45,7 @@ namespace CrewOnCallUWP
             options.FetchProperties.Add(AppointmentProperties.AllDay);
             options.FetchProperties.Add(AppointmentProperties.StartTime);
             options.FetchProperties.Add(AppointmentProperties.Duration);
+
             IReadOnlyList<Appointment> appointments = await store.FindAppointmentsAsync(DateTime.Now, TimeSpan.FromHours(2), options);
 
             if (appointments.Count > 0)
@@ -64,7 +65,7 @@ namespace CrewOnCallUWP
                 }
                 else
                 {
-                    gig.clientName = "Client TEST appointment count > 0";
+                    gig.clientName = "Client";
                     gig.venueName = "Venue";
                     gig.startDate = DateTime.Now;
                     gig.startTime = DateTime.Now.TimeOfDay;
@@ -74,7 +75,7 @@ namespace CrewOnCallUWP
             }
             else
             {
-                gig.clientName = "Client TEST appointment count = 0";
+                gig.clientName = "Client";
                 gig.venueName = "Venue";
                 gig.startDate = DateTime.Now;
                 gig.startTime = DateTime.Now.TimeOfDay;
@@ -142,7 +143,6 @@ namespace CrewOnCallUWP
             sms.Recipients.Add("+61427015243");
 
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
-
         }
 
         private async void sendtotalHours_Click(object sender, RoutedEventArgs e)
@@ -226,12 +226,6 @@ namespace CrewOnCallUWP
         private void endTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
         { }
 
-        private bool VerifyTimeIsAvailable(TimeSpan timeSpan)
-        {
-            //throw new NotImplementedException();
-            return true;
-        }
-
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
@@ -249,17 +243,114 @@ namespace CrewOnCallUWP
         }
     }
 
-    public class Gig
+    public class Gig : INotifyPropertyChanged
     {
-        public string clientName { get; set; }
-        public string venueName { get; set; }
-        public string clientNotes { get; set; }
-        public DateTimeOffset startDate { get; set; }
-        public DateTimeOffset endDate { get; set; }
-        public TimeSpan startTime { get; set; }
-        public TimeSpan endTime { get; set; }
-        public string breakLength { get; set; }
-        public string totalTime { get; set; }
-        public TimeSpan totalHours { get; set; }
+        private string client_name;
+        private string venue_name;
+        private string client_notes;
+        private DateTimeOffset start_date;
+        private DateTimeOffset end_date;
+        private TimeSpan start_time;
+        private TimeSpan end_time;
+        private string break_length;
+        private string total_time;
+        private TimeSpan total_hours;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        public string clientName
+        {
+            get { return client_name; }
+            set
+            {
+                client_name = value;
+                OnPropertyChanged("clientName");
+            }
+        }
+        public string venueName
+        {
+            get { return venue_name; }
+            set
+            {
+                venue_name = value;
+                OnPropertyChanged("venueName");
+            }
+        }
+        public string clientNotes
+        {
+            get { return client_notes; }
+            set
+            {
+                client_notes = value;
+                OnPropertyChanged("clientNotes");
+            }
+        }
+        public DateTimeOffset startDate
+        {
+            get { return start_date; }
+            set
+            {
+                start_date = value;
+                OnPropertyChanged("startDate");
+            }
+        }
+        public DateTimeOffset endDate
+        {
+            get { return end_date; }
+            set
+            {
+                end_date = value;
+                OnPropertyChanged("endDate");
+            }
+        }
+        public TimeSpan startTime
+        {
+            get { return start_time; }
+            set
+            {
+                start_time = value;
+                OnPropertyChanged("startTime");
+            }
+        }
+        public TimeSpan endTime
+        {
+            get { return end_time; }
+            set
+            {
+                end_time = value;
+                OnPropertyChanged("endTime");
+            }
+        }
+        public string breakLength
+        {
+            get { return break_length; }
+            set
+            {
+                break_length = value;
+                OnPropertyChanged("breakLength");
+            }
+        }
+        public string totalTime
+        {
+            get { return total_time; }
+            set
+            {
+                total_time = value;
+                OnPropertyChanged("totalTime");
+            }
+        }
+        public TimeSpan totalHours
+        {
+            get { return total_hours; }
+            set
+            {
+                total_hours = value;
+                OnPropertyChanged("totalHours");
+            }
+        }
+
     }
 }
