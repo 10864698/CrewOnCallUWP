@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Windows.ApplicationModel.Appointments;
 using Windows.Foundation;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -16,6 +17,8 @@ namespace CrewOnCallUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         Gig gig = new Gig
         {
             clientName = "New Client",
@@ -24,9 +27,9 @@ namespace CrewOnCallUWP
             startTime = DateTime.Now.TimeOfDay,
             endDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
             endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay
-        };
+    };
 
-        public MainPage()
+    public MainPage()
         {
             Initialize();
             InitializeComponent();
@@ -46,7 +49,29 @@ namespace CrewOnCallUWP
             options.FetchProperties.Add(AppointmentProperties.StartTime);
             options.FetchProperties.Add(AppointmentProperties.Duration);
 
-            IReadOnlyList<Appointment> appointments = await store.FindAppointmentsAsync(DateTime.Now, TimeSpan.FromHours(2), options);
+            IReadOnlyList<Appointment> appointments;
+
+            if (localSettings.Values["onTheWay"] != null)
+                gig.onTheWay = (bool)localSettings.Values["onTheWay"];
+            else
+                gig.onTheWay = false;
+
+            if (gig.onTheWay)
+            {
+                if (localSettings.Values["startDate"] != null)
+                    gig.startDate = (DateTimeOffset)localSettings.Values["startDate"];
+                else
+                    gig.startDate = DateTime.Now;
+
+                if (localSettings.Values["startTime"] != null)
+                    gig.startTime = (TimeSpan)localSettings.Values["startTime"];
+                else
+                    gig.startTime = DateTime.Now.TimeOfDay;
+
+                appointments = await store.FindAppointmentsAsync(gig.startDate, gig.startTime, options);
+            }
+            else
+                appointments = await store.FindAppointmentsAsync(DateTime.Now, TimeSpan.FromHours(2), options);
 
             if (appointments.Count > 0)
             {
@@ -65,8 +90,8 @@ namespace CrewOnCallUWP
                 }
                 else
                 {
-                    gig.clientName = "Client";
-                    gig.venueName = "Venue";
+                    gig.clientName = "New Client";
+                    gig.venueName = "New Venue";
                     gig.startDate = DateTime.Now;
                     gig.startTime = DateTime.Now.TimeOfDay;
                     gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
@@ -75,8 +100,8 @@ namespace CrewOnCallUWP
             }
             else
             {
-                gig.clientName = "Client";
-                gig.venueName = "Venue";
+                gig.clientName = "New Client";
+                gig.venueName = "New Venue";
                 gig.startDate = DateTime.Now;
                 gig.startTime = DateTime.Now.TimeOfDay;
                 gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
@@ -137,6 +162,9 @@ namespace CrewOnCallUWP
         private async void ontheway_Click(object sender, RoutedEventArgs e)
         {
             gig.clientName = clientNameTextBox.Text;
+            localSettings.Values["onTheWay"] = true;
+            localSettings.Values["startDate"] = startDatePicker.Date;
+            localSettings.Values["startTime"] = startTimePicker.Time;
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage();
             sms.Body = "I am on the way to " + gig.clientName + "\nGeorge";
@@ -147,6 +175,7 @@ namespace CrewOnCallUWP
 
         private async void sendtotalHours_Click(object sender, RoutedEventArgs e)
         {
+            localSettings.Values["onTheWay"] = false;
             gig.clientName = clientNameTextBox.Text;
             gig.startDate = startDatePicker.Date;
             gig.startTime = startTimePicker.Time;
@@ -261,6 +290,7 @@ namespace CrewOnCallUWP
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+        public bool onTheWay { get; set; }
         public string clientName
         {
             get { return client_name; }
