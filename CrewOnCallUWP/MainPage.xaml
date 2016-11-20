@@ -13,7 +13,7 @@
             </CommandBar.Content>
             <AppBarButton Icon="Calendar" Label="Add to Calendar" Click="addCalButton_Click"/>
             <AppBarButton Icon="Like" Label="SMS Confirm" Click="confirmButton_Click"/>
-            <AppBarButton Icon="Send" Label="SMS On the Way" Click="ontheway_Click"/>
+            <AppBarButton Icon="PostUpdate" Label="SMS On the Way" Click="ontheway_Click"/>
             <AppBarButton Icon="Clock" Label="SMS Hours" Click="sendtotalHours_Click"/>
         </CommandBar>
     </Page.BottomAppBar>
