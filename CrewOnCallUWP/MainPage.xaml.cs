@@ -23,6 +23,7 @@ namespace CrewOnCallUWP
         {
             clientName = "New Client",
             venueName = "New Venue",
+            clientNotes = null,
             startDate = DateTime.Now,
             startTime = DateTime.Now.TimeOfDay,
             endDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
@@ -45,6 +46,8 @@ namespace CrewOnCallUWP
             options.MaxCount = 100;
             options.FetchProperties.Add(AppointmentProperties.Subject);
             options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.DetailsKind);
+            options.FetchProperties.Add(AppointmentProperties.Details);
             options.FetchProperties.Add(AppointmentProperties.AllDay);
             options.FetchProperties.Add(AppointmentProperties.StartTime);
             options.FetchProperties.Add(AppointmentProperties.Duration);
@@ -68,7 +71,13 @@ namespace CrewOnCallUWP
                 else
                     gig.startTime = DateTime.Now.TimeOfDay;
 
-                appointments = await store.FindAppointmentsAsync(gig.startDate, gig.startTime, options);
+                var cal = new Appointment();
+                var date = gig.startDate.Date;
+                var time = gig.startTime;
+                var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+                var calTime = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, timeZoneOffset);
+
+                appointments = await store.FindAppointmentsAsync(calTime, TimeSpan.FromMinutes(1), options);
             }
             else
                 appointments = await store.FindAppointmentsAsync(DateTime.Now, TimeSpan.FromHours(2), options);
@@ -83,6 +92,7 @@ namespace CrewOnCallUWP
                 {
                     gig.clientName = appointments[i].Subject;
                     gig.venueName = appointments[i].Location;
+                    gig.clientNotes = appointments[i].Details;
                     gig.startDate = appointments[i].StartTime;
                     gig.startTime = gig.startDate.TimeOfDay;
                     gig.endDate = appointments[i].StartTime.Add(appointments[i].Duration);
@@ -134,6 +144,7 @@ namespace CrewOnCallUWP
             cal.Duration = gig.totalHours;
             cal.Location = gig.venueName;
             cal.Subject = gig.clientName;
+            cal.DetailsKind = AppointmentDetailsKind.PlainText;
             cal.Details = "CrewOnCall::" + ((ComboBoxItem)skillPicker.SelectedItem).Content.ToString() + "\n" + gig.clientNotes;
             cal.AllDay = false;
             cal.Reminder = TimeSpan.FromHours(2);

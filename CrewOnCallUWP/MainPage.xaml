@@ -6,61 +6,48 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <Page.BottomAppBar>
+        <CommandBar>
+            <CommandBar.Content>
+                <Grid/>
+            </CommandBar.Content>
+            <AppBarButton Icon="Calendar" Label="Add to Calendar" Click="addCalButton_Click"/>
+            <AppBarButton Icon="Like" Label="SMS Confirm" Click="confirmButton_Click"/>
+            <AppBarButton Icon="Send" Label="SMS On the Way" Click="ontheway_Click"/>
+            <AppBarButton Icon="Clock" Label="SMS Hours" Click="sendtotalHours_Click"/>
+        </CommandBar>
+    </Page.BottomAppBar>
 
-    <ScrollViewer>
-        <Grid Margin="0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+    <Pivot x:Name="rootPivot" Title="Crew On Call">
+        <PivotItem Header="Summary">
+            <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Visible" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+                <RelativePanel BorderBrush="Gray" BorderThickness="1">
+                    <DatePicker x:Name="startDatePicker"  DateChanged="startDatePicker_DateChanged" Header="Date" Date="{Binding startDate, Mode=TwoWay}" />
+                    <TextBox x:Name="clientNameTextBox" Header="Client" Height="66" Width="352" TextChanged="clientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding clientName, Mode=TwoWay}" RelativePanel.Below="startDatePicker"/>
+                    <TextBox x:Name="venueNameTextBox" Header="Venue" Height="66" Width="352" TextChanged="venueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding venueName, Mode=TwoWay}" RelativePanel.Below="clientNameTextBox"/>
+                    <TimePicker x:Name="startTimePicker" Margin="0" TimeChanged="startTimePicker_TimeChanged" Header="Start Time" Time="{Binding startTime, Mode=TwoWay}" MinuteIncrement="15" RelativePanel.Below="venueNameTextBox"/>
+                    <TimePicker x:Name="endTimePicker" Margin="0" TimeChanged="startTimePicker_TimeChanged" Header="End Time" Time="{Binding endTime, Mode=TwoWay}" MinuteIncrement="15" RelativePanel.Below="startTimePicker"/>
+                    <ComboBox x:Name="breakLengthPicker" Margin="0" SelectionChanged="breakLength_SelectionChanged" Header="Break"  RelativePanel.Below="endTimePicker" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="No" IsSelected="True"/>
+                        <ComboBoxItem Content="30 min"/>
+                        <ComboBoxItem Content="45 min" />
+                        <ComboBoxItem Content="60 min"/>
+                    </ComboBox>
+                </RelativePanel>
+            </ScrollViewer>
+        </PivotItem>
 
-            <DatePicker x:Name="startDatePicker" Margin="0" DateChanged="startDatePicker_DateChanged" Header="Start Date" Date="{Binding startDate, Mode=TwoWay}" Grid.Row="1" Grid.Column="1" MinWidth="0" MaxWidth="Infinity" HorizontalAlignment="Stretch" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Grid.ColumnSpan="3"/>
-            <ComboBox x:Name="skillPicker" Margin="0" SelectionChanged="skillPicker_SelectionChanged" Header="Skill" Grid.Row="1" Grid.Column="5" MinWidth="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
-                <ComboBoxItem Content="LEVEL3" IsSelected="True"/>
-                <ComboBoxItem Content="VANDVR"/>
-                <ComboBoxItem Content="MR/HR" />
-            </ComboBox>
-
-            <TimePicker x:Name="startTimePicker" Margin="0" TimeChanged="startTimePicker_TimeChanged" Header="Start Time" Time="{Binding startTime, Mode=TwoWay}" MinuteIncrement="15"  Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" MinWidth="0" MaxWidth="Infinity" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" />
-            <ComboBox x:Name="breakLengthPicker" Margin="0" SelectionChanged="breakLength_SelectionChanged" Header="Break"  Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
-                <ComboBoxItem Content="No" IsSelected="True"/>
-                <ComboBoxItem Content="30 min"/>
-                <ComboBoxItem Content="45 min" />
-                <ComboBoxItem Content="60 min"/>
-            </ComboBox>
-            <TimePicker x:Name="endTimePicker" Margin="0" TimeChanged="endTimePicker_TimeChanged" Header="Finish Time" Time="{Binding endTime, Mode=TwoWay}" MinuteIncrement="15" Grid.Row="3" Grid.Column="5" VerticalAlignment="Top" MaxWidth="Infinity" MinWidth="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" HorizontalAlignment="Stretch"/>
-
-            <Button x:Name="addCalButton" Content="Add Calendar" Click="addCalButton_Click" Margin="0" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="0" Grid.ColumnSpan="2"/>
-            <Button x:Name="confirmButton" Content="SMS Confirm" Click="confirmButton_Click" Margin="0" Grid.Row="5" Grid.Column="4" Padding="0" HorizontalAlignment="Stretch" Grid.ColumnSpan="2"/>
-
-            <Button x:Name="onTheWayButton" Content="SMS On the Way" Click="ontheway_Click" Margin="0" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Stretch" Padding="0" Grid.ColumnSpan="2"/>
-            <Button x:Name="sendtotalHoursButton" Content="SMS Hours" Click="sendtotalHours_Click" Margin="0" Grid.Row="7" Grid.Column="4" HorizontalAlignment="Stretch" Padding="0" Grid.ColumnSpan="2"/>
-
-            <TextBox x:Name="clientNameTextBox" Header="Client" TextChanged="clientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding clientName, Mode=TwoWay}" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
-            <TextBox x:Name="venueNameTextBox" Header="Venue" TextChanged="venueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding venueName, Mode=TwoWay}" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
-            <TextBox x:Name="clientNotesTextBox" Header="Notes" TextChanged="clientNotes_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="Notes" Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5" Padding="0"/>
-            
-
-        </Grid>
-    </ScrollViewer>
+        <PivotItem Header="Details">
+            <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Visible" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+                <RelativePanel BorderBrush="Gray" BorderThickness="1">
+                    <ComboBox x:Name="skillPicker" Margin="0" SelectionChanged="skillPicker_SelectionChanged" Header="Skill" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="LEVEL3" IsSelected="True"/>
+                        <ComboBoxItem Content="VANDVR"/>
+                        <ComboBoxItem Content="MR/HR" />
+                    </ComboBox>
+                    <TextBox x:Name="clientNotesTextBox" Header="Notes" TextChanged="clientNotes_TextChanged" IsReadOnly="False" Width="{Binding ElementName=*ParentElement*, Path=ActualWidth}" Height="Auto" Text="{Binding clientNotes, Mode=TwoWay}" RelativePanel.Below="skillPicker"/>
+                </RelativePanel>
+            </ScrollViewer>
+        </PivotItem>
+    </Pivot>
 </Page>
