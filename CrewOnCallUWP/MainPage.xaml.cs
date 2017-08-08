@@ -18,6 +18,7 @@ namespace CrewOnCallUWP
     public sealed partial class MainPage : Page
     {
         ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+        //public List<string> breakOptions { get; set; }
 
         Gig gig = new Gig
         {
@@ -27,10 +28,12 @@ namespace CrewOnCallUWP
             startDate = DateTime.Now,
             startTime = DateTime.Now.TimeOfDay,
             endDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
-            endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay
-    };
+            endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay,
+            BreakOptions = new List<string> { "No", "30 min", "45 min", "60 min" },
+            breakLength = "No"
+        };
 
-    public MainPage()
+        public MainPage()
         {
             Initialize();
             InitializeComponent();
@@ -97,6 +100,14 @@ namespace CrewOnCallUWP
                     gig.startTime = gig.startDate.TimeOfDay;
                     gig.endDate = appointments[i].StartTime.Add(appointments[i].Duration);
                     gig.endTime = gig.endDate.TimeOfDay;
+                    if (appointments[i].Duration > TimeSpan.FromHours(5))
+                    {
+                        gig.breakLength = "30 min";
+                    }
+                    else
+                    {
+                        gig.breakLength = "No";
+                    }
                 }
                 else
                 {
@@ -106,6 +117,7 @@ namespace CrewOnCallUWP
                     gig.startTime = DateTime.Now.TimeOfDay;
                     gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
                     gig.endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
+                    gig.breakLength = "No";
                 }
             }
             else
@@ -116,6 +128,7 @@ namespace CrewOnCallUWP
                 gig.startTime = DateTime.Now.TimeOfDay;
                 gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
                 gig.endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
+                gig.breakLength = "No";
             }
         }
 
@@ -200,7 +213,11 @@ namespace CrewOnCallUWP
             }
             gig.endDate = gig.startDate.Add(gig.totalHours);
 
-            gig.breakLength = ((ComboBoxItem)breakLengthPicker.SelectedItem).Content.ToString();
+            if ((breakLengthPicker.SelectedIndex >= 0)&&(breakLengthPicker.SelectedItem != null))
+            {
+                gig.breakLength = breakLengthPicker.SelectedItem.ToString();
+            }
+
             switch (gig.breakLength)
             {
                 case "30 min":
@@ -211,6 +228,8 @@ namespace CrewOnCallUWP
                     break;
                 case "60 min":
                     gig.totalHours -= TimeSpan.FromMinutes(60);
+                    break;
+                default:
                     break;
             }
 
@@ -292,6 +311,7 @@ namespace CrewOnCallUWP
         private DateTimeOffset end_date;
         private TimeSpan start_time;
         private TimeSpan end_time;
+        private List<string> break_options;
         private string break_length;
         private string total_time;
         private TimeSpan total_hours;
@@ -363,6 +383,14 @@ namespace CrewOnCallUWP
             {
                 end_time = value;
                 OnPropertyChanged("endTime");
+            }
+        }
+        public List<string> BreakOptions
+        {
+            get { return break_options; }
+            set
+            {
+                break_options = value;
             }
         }
         public string breakLength
