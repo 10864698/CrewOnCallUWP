@@ -18,7 +18,6 @@ namespace CrewOnCallUWP
     public sealed partial class MainPage : Page
     {
         ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-        //public List<string> breakOptions { get; set; }
 
         Gig gig = new Gig
         {
@@ -30,6 +29,7 @@ namespace CrewOnCallUWP
             endDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
             endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay,
             BreakOptions = new List<string> { "No", "30 min", "45 min", "60 min" },
+            SkillOptions = new List<string> { "LEVEL3", "VANDVR", "MR/HR" },
             breakLength = "No"
         };
 
@@ -158,7 +158,12 @@ namespace CrewOnCallUWP
             cal.Location = gig.venueName;
             cal.Subject = gig.clientName;
             cal.DetailsKind = AppointmentDetailsKind.PlainText;
-            cal.Details = "CrewOnCall::" + ((ComboBoxItem)skillPicker.SelectedItem).Content.ToString() + "\n" + gig.clientNotes;
+
+            if ((skillPicker.SelectedIndex >= 0) && (skillPicker.SelectedItem != null))
+            {
+                cal.Details = "CrewOnCall::" + skillPicker.SelectedItem.ToString() + "\n" + gig.clientNotes;
+            }
+                
             cal.AllDay = false;
             cal.Reminder = TimeSpan.FromHours(2);
 
@@ -312,6 +317,7 @@ namespace CrewOnCallUWP
         private TimeSpan start_time;
         private TimeSpan end_time;
         private List<string> break_options;
+        private List<string> skill_options;
         private string break_length;
         private string total_time;
         private TimeSpan total_hours;
@@ -383,6 +389,14 @@ namespace CrewOnCallUWP
             {
                 end_time = value;
                 OnPropertyChanged("endTime");
+            }
+        }
+        public List<string> SkillOptions
+        {
+            get { return skill_options; }
+            set
+            {
+                skill_options = value;
             }
         }
         public List<string> BreakOptions

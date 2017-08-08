@@ -44,10 +44,16 @@
         <PivotItem Header="Details">
             <ScrollViewer Name="Details" ScrollViewer.VerticalScrollBarVisibility="Visible" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True">
                 <RelativePanel BorderBrush="Gray" BorderThickness="1">
-                    <ComboBox x:Name="skillPicker" Margin="0" SelectionChanged="skillPicker_SelectionChanged" Header="Skill" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Padding="0" HorizontalAlignment="Stretch">
-                        <ComboBoxItem Content="LEVEL3" IsSelected="True"/>
-                        <ComboBoxItem Content="VANDVR"/>
-                        <ComboBoxItem Content="MR/HR" />
+                    <ComboBox x:Name="skillPicker"
+                              ItemsSource="{Binding SkillOptions}"
+                              SelectedValue="{Binding SkillOptions}"
+                              SelectedValuePath="{Binding SkillOptions}"
+                              Margin="0" 
+                              SelectionChanged="skillPicker_SelectionChanged" 
+                              Header="Skill" HorizontalContentAlignment="Left" 
+                              VerticalContentAlignment="Top" 
+                              Padding="0" 
+                              HorizontalAlignment="Stretch">                        
                     </ComboBox>
                     <TextBox x:Name="clientNotesTextBox" Header="Notes" TextChanged="clientNotes_TextChanged" IsReadOnly="False" Width="{Binding ElementName=Details, Path=ActualWidth}" Height="Auto" Text="{Binding clientNotes, Mode=TwoWay}" TextWrapping="Wrap" AcceptsReturn="True"  RelativePanel.Below="skillPicker"/>
                 </RelativePanel>
