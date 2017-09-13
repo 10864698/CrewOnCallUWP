@@ -87,20 +87,18 @@ namespace CrewOnCallUWP
 
             if (appointments.Count > 0)
             {
-                var i = 0;
+                foreach (var appointment in appointments)
 
-                while ((appointments[i].AllDay) && (i < appointments.Count))
-                    i++;
-                if (!appointments[i].AllDay)
+                if (!appointment.AllDay)
                 {
-                    gig.clientName = appointments[i].Subject;
-                    gig.venueName = appointments[i].Location;
-                    gig.clientNotes = appointments[i].Details;
-                    gig.startDate = appointments[i].StartTime;
+                    gig.clientName = appointment.Subject;
+                    gig.venueName = appointment.Location;
+                    gig.clientNotes = appointment.Details;
+                    gig.startDate = appointment.StartTime;
                     gig.startTime = gig.startDate.TimeOfDay;
-                    gig.endDate = appointments[i].StartTime.Add(appointments[i].Duration);
+                    gig.endDate = appointment.StartTime.Add(appointment.Duration);
                     gig.endTime = gig.endDate.TimeOfDay;
-                    if (appointments[i].Duration > TimeSpan.FromHours(5))
+                    if (appointment.Duration > TimeSpan.FromHours(5))
                     {
                         gig.breakLength = "30 min";
                     }
@@ -163,7 +161,7 @@ namespace CrewOnCallUWP
             {
                 cal.Details = "CrewOnCall::" + skillPicker.SelectedItem.ToString() + "\n" + gig.clientNotes;
             }
-                
+
             cal.AllDay = false;
             cal.Reminder = TimeSpan.FromHours(2);
 
@@ -218,7 +216,7 @@ namespace CrewOnCallUWP
             }
             gig.endDate = gig.startDate.Add(gig.totalHours);
 
-            if ((breakLengthPicker.SelectedIndex >= 0)&&(breakLengthPicker.SelectedItem != null))
+            if ((breakLengthPicker.SelectedIndex >= 0) && (breakLengthPicker.SelectedItem != null))
             {
                 gig.breakLength = breakLengthPicker.SelectedItem.ToString();
             }
@@ -243,7 +241,7 @@ namespace CrewOnCallUWP
                 gig.totalHours = TimeSpan.FromDays(0);
             }
 
-            if ((startDatePicker.Date.DayOfWeek == 0) & (gig.totalHours < TimeSpan.FromHours(4)))
+            if ((startDatePicker.Date.DayOfWeek == DayOfWeek.Sunday) & (gig.totalHours < TimeSpan.FromHours(4)))
             {
                 gig.totalHours = TimeSpan.FromHours(4);
                 gig.totalTime = "4 hr call";
