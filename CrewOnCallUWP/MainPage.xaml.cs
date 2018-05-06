@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Windows.ApplicationModel.Appointments;
 using Windows.Foundation;
 using Windows.Storage;
@@ -21,16 +20,16 @@ namespace CrewOnCallUWP
 
         Gig gig = new Gig
         {
-            clientName = "New Client",
-            venueName = "New Venue",
-            clientNotes = null,
-            startDate = DateTime.Now,
-            startTime = DateTime.Now.TimeOfDay,
-            endDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
-            endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay,
+            ClientName = "Client",
+            VenueName = "Venue",
+            ClientNotes = null,
+            StartDate = DateTime.Now,
+            StartTime = DateTime.Now.TimeOfDay,
+            EndDate = DateTime.Now.Add(TimeSpan.FromHours(3)),
+            EndTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay,
             BreakOptions = new List<string> { "No", "30 min", "45 min", "60 min" },
             SkillOptions = new List<string> { "LEVEL3", "VANDVR", "MR/HR" },
-            breakLength = "No"
+            BreakLength = "No"
         };
 
         public MainPage()
@@ -58,25 +57,25 @@ namespace CrewOnCallUWP
             IReadOnlyList<Appointment> appointments;
 
             if (localSettings.Values["onTheWay"] != null)
-                gig.onTheWay = (bool)localSettings.Values["onTheWay"];
+                gig.OnTheWay = (bool)localSettings.Values["onTheWay"];
             else
-                gig.onTheWay = false;
+                gig.OnTheWay = false;
 
-            if (gig.onTheWay)
+            if (gig.OnTheWay)
             {
                 if (localSettings.Values["startDate"] != null)
-                    gig.startDate = (DateTimeOffset)localSettings.Values["startDate"];
+                    gig.StartDate = (DateTimeOffset)localSettings.Values["startDate"];
                 else
-                    gig.startDate = DateTime.Now;
+                    gig.StartDate = DateTime.Now;
 
                 if (localSettings.Values["startTime"] != null)
-                    gig.startTime = (TimeSpan)localSettings.Values["startTime"];
+                    gig.StartTime = (TimeSpan)localSettings.Values["startTime"];
                 else
-                    gig.startTime = DateTime.Now.TimeOfDay;
+                    gig.StartTime = DateTime.Now.TimeOfDay;
 
                 var cal = new Appointment();
-                var date = gig.startDate.Date;
-                var time = gig.startTime;
+                var date = gig.StartDate.Date;
+                var time = gig.StartTime;
                 var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
                 var calTime = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, timeZoneOffset);
 
@@ -89,60 +88,62 @@ namespace CrewOnCallUWP
             {
                 foreach (var appointment in appointments)
 
-                if (!appointment.AllDay)
-                {
-                    gig.clientName = appointment.Subject;
-                    gig.venueName = appointment.Location;
-                    gig.clientNotes = appointment.Details;
-                    gig.startDate = appointment.StartTime;
-                    gig.startTime = gig.startDate.TimeOfDay;
-                    gig.endDate = appointment.StartTime.Add(appointment.Duration);
-                    gig.endTime = gig.endDate.TimeOfDay;
-                    if (appointment.Duration > TimeSpan.FromHours(5))
+                    if (!appointment.AllDay)
                     {
-                        gig.breakLength = "30 min";
+                        gig.ClientName = appointment.Subject;
+                        gig.VenueName = appointment.Location;
+                        gig.ClientNotes = Windows.Data.Html.HtmlUtilities.ConvertToText(appointment.Details);
+                        gig.StartDate = appointment.StartTime;
+                        gig.StartTime = gig.StartDate.TimeOfDay;
+                        gig.EndDate = appointment.StartTime.Add(appointment.Duration);
+                        gig.EndTime = gig.EndDate.TimeOfDay;
+                        if (appointment.Duration > TimeSpan.FromHours(5))
+                        {
+                            gig.BreakLength = "30 min";
+                        }
+                        else
+                        {
+                            gig.BreakLength = "No";
+                        }
                     }
                     else
                     {
-                        gig.breakLength = "No";
+                        gig.ClientName = (string)localSettings.Values["clientName"];
+                        gig.VenueName = (string)localSettings.Values["venueName"];
+                        gig.StartDate = DateTime.Now;
+                        gig.StartTime = DateTime.Now.TimeOfDay;
+                        gig.EndDate = DateTime.Now.Add(TimeSpan.FromHours(3));
+                        gig.EndTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
+                        gig.BreakLength = "No";
                     }
-                }
-                else
-                {
-                    gig.clientName = "New Client";
-                    gig.venueName = "New Venue";
-                    gig.startDate = DateTime.Now;
-                    gig.startTime = DateTime.Now.TimeOfDay;
-                    gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
-                    gig.endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
-                    gig.breakLength = "No";
-                }
             }
             else
             {
-                gig.clientName = "New Client";
-                gig.venueName = "New Venue";
-                gig.startDate = DateTime.Now;
-                gig.startTime = DateTime.Now.TimeOfDay;
-                gig.endDate = DateTime.Now.Add(TimeSpan.FromHours(3));
-                gig.endTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
-                gig.breakLength = "No";
+                gig.ClientName = (string)localSettings.Values["clientName"];
+                gig.VenueName = (string)localSettings.Values["venueName"];
+                gig.StartDate = DateTime.Now;
+                gig.StartTime = DateTime.Now.TimeOfDay;
+                gig.EndDate = DateTime.Now.Add(TimeSpan.FromHours(3));
+                gig.EndTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay;
+                gig.BreakLength = "No";
             }
         }
 
-        private async void addCalButton_Click(object sender, RoutedEventArgs e)
+        private async void AddCalButton_Click(object sender, RoutedEventArgs e)
         {
-            gig.clientName = clientNameTextBox.Text;
-            gig.venueName = venueNameTextBox.Text;
-            gig.clientNotes = clientNotesTextBox.Text;
-            gig.startDate = startDatePicker.Date;
-            gig.startTime = startTimePicker.Time;
+            gig.ClientName = clientNameTextBox.Text;
+            localSettings.Values["clientName"] = clientNameTextBox.Text;
+            gig.VenueName = venueNameTextBox.Text;
+            localSettings.Values["venueName"] = venueNameTextBox.Text;
+            gig.ClientNotes = clientNotesTextBox.Text;
+            gig.StartDate = startDatePicker.Date;
+            gig.StartTime = startTimePicker.Time;
 
-            gig.totalHours = endTimePicker.Time - startTimePicker.Time;
+            gig.TotalHours = endTimePicker.Time - startTimePicker.Time;
 
-            if (gig.totalHours < TimeSpan.FromDays(0))
+            if (gig.TotalHours < TimeSpan.FromDays(0))
             {
-                gig.totalHours += TimeSpan.FromDays(1);
+                gig.TotalHours += TimeSpan.FromDays(1);
             }
 
             var cal = new Appointment();
@@ -152,140 +153,154 @@ namespace CrewOnCallUWP
             var calTime = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, timeZoneOffset);
 
             cal.StartTime = calTime;
-            cal.Duration = gig.totalHours;
-            cal.Location = gig.venueName;
-            cal.Subject = gig.clientName;
+            cal.Duration = gig.TotalHours;
+            cal.Location = gig.VenueName;
+            cal.Subject = gig.ClientName;
             cal.DetailsKind = AppointmentDetailsKind.PlainText;
 
             if ((skillPicker.SelectedIndex >= 0) && (skillPicker.SelectedItem != null))
             {
-                cal.Details = "CrewOnCall::" + skillPicker.SelectedItem.ToString() + "\n" + gig.clientNotes;
+                cal.Details = "CrewOnCall::" + skillPicker.SelectedItem.ToString() + "\n" + gig.ClientNotes;
             }
+            else
+                cal.Details = "CrewOnCall::LEVEL3" + "\n" + gig.ClientNotes;
+
 
             cal.AllDay = false;
             cal.Reminder = TimeSpan.FromHours(2);
 
-            await AppointmentManager.ShowAddAppointmentAsync(cal, new Rect(), Windows.UI.Popups.Placement.Default);
+            try
+            {
+                await AppointmentManager.ShowAddAppointmentAsync(cal, new Rect(), Windows.UI.Popups.Placement.Default);
+            }
+            catch
+            { }
         }
 
-        private async void confirmButton_Click(object sender, RoutedEventArgs e)
+        private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            gig.clientName = clientNameTextBox.Text;
-            gig.venueName = venueNameTextBox.Text;
-            gig.startDate = startDatePicker.Date;
-            gig.startTime = startTimePicker.Time;
+            gig.ClientName = clientNameTextBox.Text;
+            gig.VenueName = venueNameTextBox.Text;
+            gig.StartDate = startDatePicker.Date;
+            gig.StartTime = startTimePicker.Time;
 
-            var date = gig.startDate.LocalDateTime.ToString("D");
-            var time = gig.startTime.ToString(@"hh\:mm");
+            var date = gig.StartDate.LocalDateTime.ToString("D");
+            var time = gig.StartTime.ToString(@"hh\:mm");
 
-            var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "Confirming " + gig.clientName + " at " + gig.venueName + " on " + date + " at " + time + "\nGeorge";
+            var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            {
+                Body = "Confirming " + gig.ClientName + " at " + gig.VenueName + " on " + date + " at " + time + "\nGeorge"
+            };
             sms.Recipients.Add("+61427015243");
 
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
 
-        private async void ontheway_Click(object sender, RoutedEventArgs e)
+        private async void Ontheway_Click(object sender, RoutedEventArgs e)
         {
-            gig.clientName = clientNameTextBox.Text;
+            gig.ClientName = clientNameTextBox.Text;
             localSettings.Values["onTheWay"] = true;
             localSettings.Values["startDate"] = startDatePicker.Date;
             localSettings.Values["startTime"] = startTimePicker.Time;
 
-            var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "I am on the way to " + gig.clientName + "\nGeorge";
+            var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            {
+                Body = "I am on the way to " + gig.ClientName + "\nGeorge"
+            };
             sms.Recipients.Add("+61427015243");
 
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
-        private async void sendtotalHours_Click(object sender, RoutedEventArgs e)
+        private async void SendtotalHours_Click(object sender, RoutedEventArgs e)
         {
             localSettings.Values["onTheWay"] = false;
-            gig.clientName = clientNameTextBox.Text;
-            gig.startDate = startDatePicker.Date;
-            gig.startTime = startTimePicker.Time;
-            gig.endTime = endTimePicker.Time;
+            gig.ClientName = clientNameTextBox.Text;
+            gig.StartDate = startDatePicker.Date;
+            gig.StartTime = startTimePicker.Time;
+            gig.EndTime = endTimePicker.Time;
 
-            gig.totalHours = endTimePicker.Time - startTimePicker.Time;
+            gig.TotalHours = endTimePicker.Time - startTimePicker.Time;
 
-            if (gig.totalHours < TimeSpan.FromDays(0))
+            if (gig.TotalHours < TimeSpan.FromDays(0))
             {
-                gig.totalHours += TimeSpan.FromDays(1);
+                gig.TotalHours += TimeSpan.FromDays(1);
             }
-            gig.endDate = gig.startDate.Add(gig.totalHours);
+            gig.EndDate = gig.StartDate.Add(gig.TotalHours);
 
             if ((breakLengthPicker.SelectedIndex >= 0) && (breakLengthPicker.SelectedItem != null))
             {
-                gig.breakLength = breakLengthPicker.SelectedItem.ToString();
+                gig.BreakLength = breakLengthPicker.SelectedItem.ToString();
             }
 
-            switch (gig.breakLength)
+            switch (gig.BreakLength)
             {
                 case "30 min":
-                    gig.totalHours -= TimeSpan.FromMinutes(30);
+                    gig.TotalHours -= TimeSpan.FromMinutes(30);
                     break;
                 case "45 min":
-                    gig.totalHours -= TimeSpan.FromMinutes(45);
+                    gig.TotalHours -= TimeSpan.FromMinutes(45);
                     break;
                 case "60 min":
-                    gig.totalHours -= TimeSpan.FromMinutes(60);
+                    gig.TotalHours -= TimeSpan.FromMinutes(60);
                     break;
                 default:
                     break;
             }
 
-            if (gig.totalHours < TimeSpan.FromDays(0))
+            if (gig.TotalHours < TimeSpan.FromDays(0))
             {
-                gig.totalHours = TimeSpan.FromDays(0);
+                gig.TotalHours = TimeSpan.FromDays(0);
             }
 
-            if ((startDatePicker.Date.DayOfWeek == DayOfWeek.Sunday) & (gig.totalHours < TimeSpan.FromHours(4)))
+            if ((startDatePicker.Date.DayOfWeek == DayOfWeek.Sunday) & (gig.TotalHours < TimeSpan.FromHours(4)))
             {
-                gig.totalHours = TimeSpan.FromHours(4);
-                gig.totalTime = "4 hr call";
-            }
-
-            else
-                if (gig.totalHours < TimeSpan.FromHours(3))
-            {
-                gig.totalHours = TimeSpan.FromHours(3);
-                gig.totalTime = "3 hr call";
+                gig.TotalHours = TimeSpan.FromHours(4);
+                gig.TotalTime = "4 hr call";
             }
 
             else
-                gig.totalTime = gig.totalHours.ToString(@"hh\:mm");
+                if (gig.TotalHours < TimeSpan.FromHours(3))
+            {
+                gig.TotalHours = TimeSpan.FromHours(3);
+                gig.TotalTime = "3 hr call";
+            }
 
-            var sms = new Windows.ApplicationModel.Chat.ChatMessage();
-            sms.Body = "Hours for " + gig.clientName + " = " + gig.totalTime + ".\n(" + gig.startTime.ToString(@"hh\:mm") + " - " + gig.endTime.ToString(@"hh\:mm") + ")\n" + gig.breakLength + " break.\nGeorge";
+            else
+                gig.TotalTime = gig.TotalHours.ToString(@"hh\:mm");
+
+            var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            {
+                Body = "Hours for " + gig.ClientName + " = " + gig.TotalTime + ".\n(" + gig.StartTime.ToString(@"hh\:mm") + " - " + gig.EndTime.ToString(@"hh\:mm") + ")\n" + gig.BreakLength + " break.\nGeorge"
+            };
             sms.Recipients.Add("+61427015243");
 
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
-        private void clientName_TextChanged(object sender, TextChangedEventArgs e)
+        private void ClientName_TextChanged(object sender, TextChangedEventArgs e)
         { }
 
-        private void venueName_TextChanged(object sender, TextChangedEventArgs e)
+        private void VenueName_TextChanged(object sender, TextChangedEventArgs e)
         { }
 
-        private void clientNotes_TextChanged(object sender, TextChangedEventArgs e)
+        private void ClientNotes_TextChanged(object sender, TextChangedEventArgs e)
         { }
 
-        private void startDatePicker_DateChanged(object sender, DatePickerValueChangedEventArgs e)
+        private void StartDatePicker_DateChanged(object sender, DatePickerValueChangedEventArgs e)
         { }
 
-        private void skillPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SkillPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         { }
 
-        private void startTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
+        private void StartTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
         { }
 
-        private void breakLength_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void BreakLength_SelectionChanged(object sender, SelectionChangedEventArgs e)
         { }
 
-        private void endTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
+        private void EndTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
         { }
 
         /// <summary>
@@ -303,135 +318,5 @@ namespace CrewOnCallUWP
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
         }
-    }
-
-    public class Gig : INotifyPropertyChanged
-    {
-        private string client_name;
-        private string venue_name;
-        private string client_notes;
-        private DateTimeOffset start_date;
-        private DateTimeOffset end_date;
-        private TimeSpan start_time;
-        private TimeSpan end_time;
-        private List<string> break_options;
-        private List<string> skill_options;
-        private string break_length;
-        private string total_time;
-        private TimeSpan total_hours;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-        public bool onTheWay { get; set; }
-        public string clientName
-        {
-            get { return client_name; }
-            set
-            {
-                client_name = value;
-                OnPropertyChanged("clientName");
-            }
-        }
-        public string venueName
-        {
-            get { return venue_name; }
-            set
-            {
-                venue_name = value;
-                OnPropertyChanged("venueName");
-            }
-        }
-        public string clientNotes
-        {
-            get { return client_notes; }
-            set
-            {
-                client_notes = value;
-                OnPropertyChanged("clientNotes");
-            }
-        }
-        public DateTimeOffset startDate
-        {
-            get { return start_date; }
-            set
-            {
-                start_date = value;
-                OnPropertyChanged("startDate");
-            }
-        }
-        public DateTimeOffset endDate
-        {
-            get { return end_date; }
-            set
-            {
-                end_date = value;
-                OnPropertyChanged("endDate");
-            }
-        }
-        public TimeSpan startTime
-        {
-            get { return start_time; }
-            set
-            {
-                start_time = value;
-                OnPropertyChanged("startTime");
-            }
-        }
-        public TimeSpan endTime
-        {
-            get { return end_time; }
-            set
-            {
-                end_time = value;
-                OnPropertyChanged("endTime");
-            }
-        }
-        public List<string> SkillOptions
-        {
-            get { return skill_options; }
-            set
-            {
-                skill_options = value;
-            }
-        }
-        public List<string> BreakOptions
-        {
-            get { return break_options; }
-            set
-            {
-                break_options = value;
-            }
-        }
-        public string breakLength
-        {
-            get { return break_length; }
-            set
-            {
-                break_length = value;
-                OnPropertyChanged("breakLength");
-            }
-        }
-        public string totalTime
-        {
-            get { return total_time; }
-            set
-            {
-                total_time = value;
-                OnPropertyChanged("totalTime");
-            }
-        }
-        public TimeSpan totalHours
-        {
-            get { return total_hours; }
-            set
-            {
-                total_hours = value;
-                OnPropertyChanged("totalHours");
-            }
-        }
-
     }
 }
