@@ -149,7 +149,7 @@ namespace CrewOnCallUWP
             var cal = new Appointment();
             var date = startDatePicker.Date;
             var time = startTimePicker.Time;
-            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(date.Add(time));
             var calTime = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, timeZoneOffset);
 
             cal.StartTime = calTime;
