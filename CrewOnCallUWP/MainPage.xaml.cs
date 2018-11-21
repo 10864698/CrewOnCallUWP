@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.ApplicationModel.Appointments;
 using Windows.Foundation;
 using Windows.Storage;
@@ -18,10 +19,14 @@ namespace CrewOnCallUWP
     {
         ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
+        ApplicationDataContainer localStorage = ApplicationData.Current.LocalSettings.CreateContainer("clientNames", ApplicationDataCreateDisposition.Always);
+
+        public List<string> clientNames;
+
         Gig gig = new Gig
         {
-            ClientName = "Client",
-            VenueName = "Venue",
+            ClientName = null,
+            VenueName = null,
             ClientNotes = null,
             StartDate = DateTime.Now,
             StartTime = DateTime.Now.TimeOfDay,
@@ -29,6 +34,7 @@ namespace CrewOnCallUWP
             EndTime = DateTime.Now.Add(TimeSpan.FromHours(3)).TimeOfDay,
             BreakOptions = new List<string> { "No", "30 min", "45 min", "60 min" },
             SkillOptions = new List<string> { "LEVEL3", "VANDVR", "MR/HR" },
+            Skill = null,
             BreakLength = "No"
         };
 
@@ -42,10 +48,17 @@ namespace CrewOnCallUWP
 
         public async void Initialize()
         {
+            for (int i = 0; i < ApplicationData.Current.LocalSettings.Containers["clientNames"].Values.Count; i++)
+            {
+                clientNames.Add(ApplicationData.Current.LocalSettings.Containers["clientNames"].Values.ElementAt(i).Value.ToString());
+            }
+
             AppointmentStore store = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
 
-            FindAppointmentsOptions options = new FindAppointmentsOptions();
-            options.MaxCount = 100;
+            FindAppointmentsOptions options = new FindAppointmentsOptions
+            {
+                MaxCount = 100
+            };
             options.FetchProperties.Add(AppointmentProperties.Subject);
             options.FetchProperties.Add(AppointmentProperties.Location);
             options.FetchProperties.Add(AppointmentProperties.DetailsKind);
@@ -93,6 +106,23 @@ namespace CrewOnCallUWP
                         gig.ClientName = appointment.Subject;
                         gig.VenueName = appointment.Location;
                         gig.ClientNotes = Windows.Data.Html.HtmlUtilities.ConvertToText(appointment.Details);
+                        if (gig.ClientNotes.Contains("CrewOnCall::LEVEL3"))
+                        {
+                            gig.Skill = "LEVEL3";
+                            gig.ClientNotes = gig.ClientNotes.Replace("CrewOnCall::LEVEL3", "");
+                        }
+                                
+                        if (appointment.Details.Contains("CrewOnCall::VANDVR"))
+                        {
+                            gig.Skill = "VANDVR";
+                            gig.ClientNotes = gig.ClientNotes.Replace("CrewOnCall::VANDVR", "");
+                        }
+                                
+                        if (appointment.Details.Contains("CrewOnCall::MR/HR"))
+                        {
+                            gig.Skill = "MR/HR";
+                            gig.ClientNotes = gig.ClientNotes.Replace("CrewOnCall::MR/HR", "");
+                        }
                         gig.StartDate = appointment.StartTime;
                         gig.StartTime = gig.StartDate.TimeOfDay;
                         gig.EndDate = appointment.StartTime.Add(appointment.Duration);
@@ -213,7 +243,7 @@ namespace CrewOnCallUWP
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
         }
 
-        private async void SendtotalHours_Click(object sender, RoutedEventArgs e)
+        private async void SendTotalHours_Click(object sender, RoutedEventArgs e)
         {
             localSettings.Values["onTheWay"] = false;
             gig.ClientName = clientNameTextBox.Text;
@@ -277,6 +307,12 @@ namespace CrewOnCallUWP
             sms.Recipients.Add("+61427015243");
 
             await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+        }
+
+        private void ClearClientNotes_Click(object sender, RoutedEventArgs e)
+        {
+            gig.ClientNotes = null;
+            gig.Skill = null;
         }
 
         private void ClientName_TextChanged(object sender, TextChangedEventArgs e)

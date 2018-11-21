@@ -15,8 +15,7 @@ namespace CrewOnCallUWP
         private DateTimeOffset end_date;
         private TimeSpan start_time;
         private TimeSpan end_time;
-        private List<string> break_options;
-        private List<string> skill_options;
+        private string skill;
         private string break_length;
         private string total_time;
         private TimeSpan total_hours;
@@ -30,6 +29,7 @@ namespace CrewOnCallUWP
 
         public bool OnTheWay { get; set; }
 
+        
         public string ClientName
         {
             get { return client_name; }
@@ -93,22 +93,17 @@ namespace CrewOnCallUWP
                 OnPropertyChanged("EndTime");
             }
         }
-        public List<string> SkillOptions
+        public List<string> SkillOptions { get; set; }
+        public string Skill
         {
-            get { return skill_options; }
+            get { return skill; }
             set
             {
-                skill_options = value;
+                skill = value;
+                OnPropertyChanged("Skill");
             }
         }
-        public List<string> BreakOptions
-        {
-            get { return break_options; }
-            set
-            {
-                break_options = value;
-            }
-        }
+        public List<string> BreakOptions { get; set; }
         public string BreakLength
         {
             get { return break_length; }

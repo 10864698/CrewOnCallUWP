@@ -14,7 +14,7 @@
             <AppBarButton Icon="Calendar" Label="Add to Calendar" Click="AddCalButton_Click"/>
             <AppBarButton Icon="Like" Label="SMS Confirm" Click="ConfirmButton_Click"/>
             <AppBarButton Icon="PostUpdate" Label="SMS On the Way" Click="Ontheway_Click"/>
-            <AppBarButton Icon="Clock" Label="SMS Hours" Click="SendtotalHours_Click"/>
+            <AppBarButton Icon="Clock" Label="SMS Hours" Click="SendTotalHours_Click"/>
         </CommandBar>
     </Page.BottomAppBar>
 
@@ -23,8 +23,8 @@
             <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Visible" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True">
                 <RelativePanel BorderBrush="Gray" BorderThickness="1">
                     <DatePicker x:Name="startDatePicker"  DateChanged="StartDatePicker_DateChanged" Header="Date" Date="{Binding StartDate, Mode=TwoWay}" />
-                    <TextBox x:Name="clientNameTextBox" Header="Client" Height="66" Width="352" TextChanged="ClientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding ClientName, Mode=TwoWay}" RelativePanel.Below="startDatePicker"/>
-                    <TextBox x:Name="venueNameTextBox" Header="Venue" Height="66" Width="352" TextChanged="VenueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="Wrap" Text="{Binding VenueName, Mode=TwoWay}" RelativePanel.Below="clientNameTextBox"/>
+                    <TextBox x:Name="clientNameTextBox" Header="Client" Height="66" Width="352" TextChanged="ClientName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="NoWrap" Text="{Binding ClientName, Mode=TwoWay}" RelativePanel.Below="startDatePicker"/>
+                    <TextBox x:Name="venueNameTextBox" Header="Venue" Height="66" Width="352" TextChanged="VenueName_TextChanged" IsReadOnly="False" Margin="0" TextWrapping="NoWrap" Text="{Binding VenueName, Mode=TwoWay}" RelativePanel.Below="clientNameTextBox"/>
                     <TimePicker x:Name="startTimePicker" Margin="0" TimeChanged="StartTimePicker_TimeChanged" Header="Start Time" Time="{Binding StartTime, Mode=TwoWay}" MinuteIncrement="15" RelativePanel.Below="venueNameTextBox"/>
                     <TimePicker x:Name="endTimePicker" Margin="0" TimeChanged="StartTimePicker_TimeChanged" Header="End Time" Time="{Binding EndTime, Mode=TwoWay}" MinuteIncrement="15" RelativePanel.Below="startTimePicker"/>
                     <ComboBox x:Name="breakLengthPicker" 
@@ -46,6 +46,7 @@
                 <RelativePanel BorderBrush="Gray" BorderThickness="1">
                     <ComboBox x:Name="skillPicker"
                               ItemsSource="{Binding SkillOptions}"
+                              SelectedItem="{Binding Skill, Mode=TwoWay}"
                               Margin="0" 
                               SelectionChanged="SkillPicker_SelectionChanged" 
                               Header="Skill" HorizontalContentAlignment="Left" 
@@ -54,6 +55,7 @@
                               HorizontalAlignment="Stretch">                        
                     </ComboBox>
                     <TextBox x:Name="clientNotesTextBox" Header="Notes" TextChanged="ClientNotes_TextChanged" IsReadOnly="False" Width="{Binding ElementName=Details, Path=ActualWidth}" Height="Auto" Text="{Binding ClientNotes, Mode=TwoWay}" TextWrapping="Wrap" AcceptsReturn="True"  RelativePanel.Below="skillPicker"/>
+                    <Button Content="Clear Notes" Click="ClearClientNotes_Click" RelativePanel.Below="clientNotesTextBox"/>
                 </RelativePanel>
             </ScrollViewer>
         </PivotItem>
