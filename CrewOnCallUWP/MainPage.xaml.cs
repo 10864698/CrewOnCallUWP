@@ -111,13 +111,13 @@ namespace CrewOnCallUWP
                             gig.Skill = "LEVEL3";
                             gig.ClientNotes = gig.ClientNotes.Replace("CrewOnCall::LEVEL3", "");
                         }
-                                
+
                         if (appointment.Details.Contains("CrewOnCall::VANDVR"))
                         {
                             gig.Skill = "VANDVR";
                             gig.ClientNotes = gig.ClientNotes.Replace("CrewOnCall::VANDVR", "");
                         }
-                                
+
                         if (appointment.Details.Contains("CrewOnCall::MR/HR"))
                         {
                             gig.Skill = "MR/HR";
@@ -219,7 +219,7 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage
             {
-                Body = "Confirming " + gig.ClientName + " at " + gig.VenueName + " on " + date + " at " + time + "\nGeorge"
+                Body = "Confirming " + gig.ClientName + " at " + gig.VenueName + ".\nDate: " + date + "\nStart Time: " + time + "\nGeorge"
             };
             sms.Recipients.Add("+61427015243");
 
@@ -236,7 +236,7 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage
             {
-                Body = "I am on the way to " + gig.ClientName + "\nGeorge"
+                Body = "Yes I am on the way to " + gig.ClientName + "\nGeorge"
             };
             sms.Recipients.Add("+61427015243");
 
@@ -302,7 +302,7 @@ namespace CrewOnCallUWP
 
             var sms = new Windows.ApplicationModel.Chat.ChatMessage
             {
-                Body = "Hours for " + gig.ClientName + " = " + gig.TotalTime + ".\n(" + gig.StartTime.ToString(@"hh\:mm") + " - " + gig.EndTime.ToString(@"hh\:mm") + ")\n" + gig.BreakLength + " break.\nGeorge"
+                Body = gig.StartDate.ToString("D") + "\n" + "Hours for " + gig.ClientName + " = " + gig.TotalTime + ".\nStart Time: " + gig.StartTime.ToString(@"hh\:mm") + "\nEnd Time: " + gig.EndTime.ToString(@"hh\:mm") + "\n" + gig.BreakLength + " break.\nGeorge"
             };
             sms.Recipients.Add("+61427015243");
 
