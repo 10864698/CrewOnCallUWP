@@ -217,13 +217,25 @@ namespace CrewOnCallUWP
             var date = gig.StartDate.LocalDateTime.ToString("D");
             var time = gig.StartTime.ToString(@"hh\:mm");
 
-            var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            //var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            //{
+            //    Body = "Confirming " + gig.ClientName + " at " + gig.VenueName + ".\nDate: " + date + "\nStart Time: " + time + "\nGeorge"
+            //};
+            //sms.Recipients.Add("+61427015243");
+
+            //await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+
+            var emailMessage = new Windows.ApplicationModel.Email.EmailMessage
             {
                 Body = "Confirming " + gig.ClientName + " at " + gig.VenueName + ".\nDate: " + date + "\nStart Time: " + time + "\nGeorge"
             };
-            sms.Recipients.Add("+61427015243");
 
-            await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+            var emailRecipient = new Windows.ApplicationModel.Email.EmailRecipient("office@crewoncall.com.au");
+
+            emailMessage.To.Add(emailRecipient);
+            emailMessage.Subject = "Confirming " + gig.ClientName + " at " + gig.VenueName + " on " + date;
+
+            await Windows.ApplicationModel.Email.EmailManager.ShowComposeNewEmailAsync(emailMessage);
         }
 
 
@@ -234,13 +246,25 @@ namespace CrewOnCallUWP
             localSettings.Values["startDate"] = startDatePicker.Date;
             localSettings.Values["startTime"] = startTimePicker.Time;
 
-            var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            //var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            //{
+            //    Body = "Yes I am on the way to " + gig.ClientName + "\nGeorge"
+            //};
+            //sms.Recipients.Add("+61427015243");
+
+            //await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+
+            var emailMessage = new Windows.ApplicationModel.Email.EmailMessage
             {
                 Body = "Yes I am on the way to " + gig.ClientName + "\nGeorge"
             };
-            sms.Recipients.Add("+61427015243");
 
-            await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+            var emailRecipient = new Windows.ApplicationModel.Email.EmailRecipient("office@crewoncall.com.au");
+
+            emailMessage.To.Add(emailRecipient);
+            emailMessage.Subject = "On the way to " + gig.ClientName;
+
+            await Windows.ApplicationModel.Email.EmailManager.ShowComposeNewEmailAsync(emailMessage);
         }
 
         private async void SendTotalHours_Click(object sender, RoutedEventArgs e)
@@ -300,13 +324,25 @@ namespace CrewOnCallUWP
             else
                 gig.TotalTime = gig.TotalHours.ToString(@"hh\:mm");
 
-            var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            //var sms = new Windows.ApplicationModel.Chat.ChatMessage
+            //{
+            //    Body = gig.StartDate.ToString("D") + "\n" + "Hours for " + gig.ClientName + " = " + gig.TotalTime + ".\nStart Time: " + gig.StartTime.ToString(@"hh\:mm") + "\nEnd Time: " + gig.EndTime.ToString(@"hh\:mm") + "\n" + gig.BreakLength + " break.\nGeorge"
+            //};
+            //sms.Recipients.Add("+61427015243");
+
+            //await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+
+            var emailMessage = new Windows.ApplicationModel.Email.EmailMessage
             {
                 Body = gig.StartDate.ToString("D") + "\n" + "Hours for " + gig.ClientName + " = " + gig.TotalTime + ".\nStart Time: " + gig.StartTime.ToString(@"hh\:mm") + "\nEnd Time: " + gig.EndTime.ToString(@"hh\:mm") + "\n" + gig.BreakLength + " break.\nGeorge"
             };
-            sms.Recipients.Add("+61427015243");
 
-            await Windows.ApplicationModel.Chat.ChatMessageManager.ShowComposeSmsMessageAsync(sms);
+            var emailRecipient = new Windows.ApplicationModel.Email.EmailRecipient("office@crewoncall.com.au");
+
+            emailMessage.To.Add(emailRecipient);
+            emailMessage.Subject = "Hours for " + gig.ClientName + " " + gig.StartDate.ToString("D");
+
+            await Windows.ApplicationModel.Email.EmailManager.ShowComposeNewEmailAsync(emailMessage);
         }
 
         private void ClearClientNotes_Click(object sender, RoutedEventArgs e)
