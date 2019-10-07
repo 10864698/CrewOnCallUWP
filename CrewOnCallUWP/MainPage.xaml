@@ -12,9 +12,9 @@
                 <Grid/>
             </CommandBar.Content>
             <AppBarButton Icon="Calendar" Label="Add to Calendar" Click="AddCalButton_Click"/>
-            <AppBarButton Icon="Like" Label="SMS Confirm" Click="ConfirmButton_Click"/>
-            <AppBarButton Icon="PostUpdate" Label="SMS On the Way" Click="Ontheway_Click"/>
-            <AppBarButton Icon="Clock" Label="SMS Hours" Click="SendTotalHours_Click"/>
+            <AppBarButton Icon="Like" Label="Confirm" Click="ConfirmButton_Click"/>
+            <AppBarButton Icon="PostUpdate" Label="On the Way" Click="Ontheway_Click"/>
+            <AppBarButton Icon="Clock" Label="Send Hours" Click="SendTotalHours_Click"/>
         </CommandBar>
     </Page.BottomAppBar>
 
